@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate pose and women's clothing descriptions for AI image prompts."""
+"""Generate pose, clothing, and appearance descriptions for AI image prompts."""
 
 import random
 import argparse
@@ -128,6 +128,110 @@ CLOTHING_TEMPLATES = [
     lambda color, fabric, garment, detail: f"She is dressed in a {color} {fabric} {garment} {detail}.",
 ]
 
+# --- Hair building blocks ---
+
+HAIR_LENGTHS = [
+    "short",
+    "chin-length",
+    "shoulder-length",
+    "long",
+    "waist-length",
+]
+
+HAIR_COLORS = [
+    "jet black",
+    "dark brown",
+    "warm chestnut",
+    "honey blonde",
+    "platinum blonde",
+    "strawberry blonde",
+    "auburn",
+    "copper red",
+    "ash grey",
+    "deep burgundy",
+    "ombre dark-to-blonde",
+]
+
+HAIR_TEXTURES = [
+    "straight",
+    "softly wavy",
+    "loosely curled",
+    "tightly coiled",
+    "sleek",
+    "textured",
+    "windswept",
+]
+
+HAIR_ARRANGEMENTS = [
+    "worn loose",
+    "swept back loosely",
+    "pulled into a low bun",
+    "in a high ponytail",
+    "in a messy updo",
+    "parted down the middle",
+    "tucked behind one ear",
+    "in soft waves around her face",
+    "braided over one shoulder",
+    "pinned up with a few loose strands framing her face",
+]
+
+HAIR_TEMPLATES = [
+    lambda length, color, texture, arrangement: f"Her {color} hair is {length} and {texture}, {arrangement}.",
+    lambda length, color, texture, arrangement: f"She has {length} {texture} {color} hair, {arrangement}.",
+    lambda length, color, texture, arrangement: f"Her {length} {color} hair is {texture}, {arrangement}.",
+]
+
+# --- Facial building blocks ---
+
+EYE_COLORS = [
+    "dark brown",
+    "hazel",
+    "green",
+    "blue-grey",
+    "amber",
+    "deep blue",
+    "grey",
+]
+
+FACIAL_EXPRESSIONS = [
+    "a calm, composed expression",
+    "a soft smile",
+    "a confident, direct expression",
+    "a gentle, relaxed look",
+    "a subtle, knowing smile",
+    "a serene, neutral expression",
+    "a warm, open expression",
+    "a quietly intense gaze",
+]
+
+MAKEUP_STYLES = [
+    "minimal makeup",
+    "a natural, barely-there look",
+    "bold red lips and simple eye makeup",
+    "a smoky eye with nude lips",
+    "dewy skin with a flush of color on the cheeks",
+    "a classic cat-eye liner",
+    "glossy lips and mascara",
+    "a warm bronze eye look",
+    "a monochromatic rose-toned makeup",
+]
+
+SKIN_TONES = [
+    "fair",
+    "light",
+    "medium",
+    "olive",
+    "tan",
+    "deep brown",
+    "dark",
+]
+
+FACIAL_TEMPLATES = [
+    lambda eyes, expression, makeup, tone: f"She has {tone} skin and {eyes} eyes, wearing {makeup}, with {expression}.",
+    lambda eyes, expression, makeup, tone: f"Her {tone} complexion and {eyes} eyes are complemented by {makeup} and {expression}.",
+    lambda eyes, expression, makeup, tone: f"With {tone} skin, {eyes} eyes, and {makeup}, she wears {expression}.",
+]
+
 
 def generate_pose() -> str:
     pos = random.choice(BODY_POSITIONS)
@@ -146,18 +250,36 @@ def generate_clothing() -> str:
     return template(color, fabric, garment, detail)
 
 
+def generate_hair() -> str:
+    length = random.choice(HAIR_LENGTHS)
+    color = random.choice(HAIR_COLORS)
+    texture = random.choice(HAIR_TEXTURES)
+    arrangement = random.choice(HAIR_ARRANGEMENTS)
+    template = random.choice(HAIR_TEMPLATES)
+    return template(length, color, texture, arrangement)
+
+
+def generate_facial() -> str:
+    eyes = random.choice(EYE_COLORS)
+    expression = random.choice(FACIAL_EXPRESSIONS)
+    makeup = random.choice(MAKEUP_STYLES)
+    tone = random.choice(SKIN_TONES)
+    template = random.choice(FACIAL_TEMPLATES)
+    return template(eyes, expression, makeup, tone)
+
+
 def main():
     parser = argparse.ArgumentParser(
-        description="Generate pose and clothing descriptions for AI image prompts."
+        description="Generate pose, clothing, and appearance descriptions for AI image prompts."
     )
     parser.add_argument(
         "-n", "--count", type=int, default=5, help="Number of sets to generate (default: 5)"
     )
     group = parser.add_mutually_exclusive_group()
     group.add_argument("--pose-only", action="store_true", help="Output pose descriptions only")
-    group.add_argument(
-        "--clothing-only", action="store_true", help="Output clothing descriptions only"
-    )
+    group.add_argument("--clothing-only", action="store_true", help="Output clothing descriptions only")
+    group.add_argument("--hair-only", action="store_true", help="Output hair descriptions only")
+    group.add_argument("--facial-only", action="store_true", help="Output facial descriptions only")
     args = parser.parse_args()
 
     for i in range(1, args.count + 1):
@@ -166,8 +288,12 @@ def main():
             print(generate_pose())
         elif args.clothing_only:
             print(generate_clothing())
+        elif args.hair_only:
+            print(generate_hair())
+        elif args.facial_only:
+            print(generate_facial())
         else:
-            print(generate_pose() + " " + generate_clothing())
+            print(generate_pose() + " " + generate_clothing() + " " + generate_hair() + " " + generate_facial())
         print()
 
 
