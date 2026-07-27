@@ -275,25 +275,38 @@ def main():
     parser.add_argument(
         "-n", "--count", type=int, default=5, help="Number of sets to generate (default: 5)"
     )
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument("--pose-only", action="store_true", help="Output pose descriptions only")
-    group.add_argument("--clothing-only", action="store_true", help="Output clothing descriptions only")
-    group.add_argument("--hair-only", action="store_true", help="Output hair descriptions only")
-    group.add_argument("--facial-only", action="store_true", help="Output facial descriptions only")
+    for name, help_text in [
+        ("pose", "pose descriptions"),
+        ("clothing", "clothing descriptions"),
+        ("hair", "hair descriptions"),
+        ("facial", "facial descriptions"),
+    ]:
+        parser.add_argument(
+            f"--{name}", dest=name, action=argparse.BooleanOptionalAction,
+            default=None, help=f"Include/exclude {help_text}",
+        )
     args = parser.parse_args()
+
+    section_flags = [args.pose, args.clothing, args.hair, args.facial]
+    any_positive = any(v is True for v in section_flags)
+
+    def include(flag) -> bool:
+        if flag is False:
+            return False
+        return flag is True or not any_positive
 
     for i in range(1, args.count + 1):
         print(f"--- Set {i} ---")
-        if args.pose_only:
-            print(generate_pose())
-        elif args.clothing_only:
-            print(generate_clothing())
-        elif args.hair_only:
-            print(generate_hair())
-        elif args.facial_only:
-            print(generate_facial())
-        else:
-            print(generate_pose() + " " + generate_clothing() + " " + generate_hair() + " " + generate_facial())
+        parts = []
+        if include(args.pose):
+            parts.append(generate_pose())
+        if include(args.clothing):
+            parts.append(generate_clothing())
+        if include(args.hair):
+            parts.append(generate_hair())
+        if include(args.facial):
+            parts.append(generate_facial())
+        print(" ".join(parts))
         print()
 
 
